@@ -8,6 +8,12 @@
 	font-weight: normal;
 	font-style: normal;
 }
+.right-panel header.header{
+	display: block !important;
+}
+.navbar .navbar-nav li.menu-item-has-children .sub-menu{
+	list-style: none;
+}
 a.admin-action{
  color:#fff;
  cursor: pointer;
@@ -29,6 +35,10 @@ div.cs-skin-elastic {
 	padding: 0;
 	border: 0;
 	background: none;
+}
+
+body{
+	padding-bottom:40px;
 }
 
 @media screen and (max-width: 30em) {
@@ -339,10 +349,18 @@ ul.list{
 	margin-right:5px;
 	color:#fff;
 	border-radius: 2px;
+	cursor: pointer;
+	display: inline-block;
+	margin-bottom:5px;
+}
+.cancelban{
+	cursor: pointer;
 }
 .admin-action.kick{
 	background: #234ea5;
 }
+
+.admin-action.remove-admin,
 .admin-action.banuser,
 .admin-action.ban{
 	background: #a52335;
@@ -363,4 +381,50 @@ ul.list{
     padding: 10px 15px;
     text-align: center;
 		background: #272c33;
+}
+.btn{
+	cursor: pointer;
+	border-radius: 4px !important;
+	transition: .4s ease all;
+}
+.add-admin{
+	background: rgba(11, 15, 96, 0.87);
+	color:#fff;
+}
+.add-admin:hover{
+	color: #fff;
+	background: rgb(27, 42, 140);
+}
+.status-online{
+	color:#2ecc71;
+}
+.status-offline{
+	color:#e74c3c;
+}
+body.open aside.left-panel .navbar .navbar-nav li.menu-item-has-children .sub-menu{
+  display: block;
+  left: inherit;
+  right: -180px;
+  top: 14px;
+  z-index:99;
+  padding:10px;
+}
+
+body.open aside.left-panel .navbar .navbar-nav li.menu-item-has-children .sub-menu{
+	display: none;
+}
+body.open aside.left-panel .navbar .navbar-nav li.menu-item-has-children.show .sub-menu{
+	display: block;
+}
+li.delweapon{
+	cursor: pointer;
+	padding:5px 5px;
+}
+li.delweapon:hover{
+	background: #eaeaea;
+}
+@media(max-width:768px){
+	.hidden-xs{
+		display: none !important;
+	}
 }

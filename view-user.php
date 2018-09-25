@@ -52,7 +52,7 @@
                 while($user = mysqli_fetch_object($resultUser)){
                     $identifier = $user->identifier;
                     $license = $user->license;
-                    $steamname = $user->name;
+                    $steamname = strip_tags($user->name);
                     $money = $user->money;
                     $bank = $user->bank;
                     $loadout = $user->loadout;
@@ -60,6 +60,7 @@
                     $job = $user->job;
                     $jobGrade = $user->job_grade;
                     $online = $user->online;
+                    $isDead = $user->isDead;
                     $userId = $user->id;
                 }
 
@@ -92,9 +93,19 @@
                             </div>
                             <div class="card-body user-info-list">
                               <div class="row pt-1 pb-2">
-                                <div class="col-lg-1"></div>
+                                <div class="col-lg-1">🕹️</div>
                                 <div class="col-lg-6 col-xs-12 p-0">Status</div>
-                                <div class="col-lg-5 col-xs-12"><?=($online == 0 ? "Offline" : "Online")?></small></div>
+                                <div class="col-lg-5 col-xs-12 status-<?=($online == 0 ? "offline" : "online")?>"><?=($online == 0 ? "Offline" : "Online")?></div>
+                              </div>
+                              <div class="row pt-1 pb-2">
+                                <div class="col-lg-1">🚑</div>
+                                <div class="col-lg-6 col-xs-12 p-0">Health</div>
+                                <div class="col-lg-5 col-xs-12 status-<?=($isDead == 0 ? "alive" : "dead")?>">
+                                  <div class="user-value <?=($online == 0 ? "offline" : "online")?>  isDead"  data-action="isDead">
+                                    <div class="current-value isDead"><?=($isDead == 0 ? "Alive" : "Dead")?></div>
+                                    <?=inlineEdit('isDead', $userId, $isDead)?>
+                                  </div>
+                                </div>
                               </div>
                               <div class="row pt-1 pb-2">
                                 <div class="col-lg-1 hidden-xs">👔</div>
@@ -154,12 +165,17 @@
                                   if(empty($loadout)):
                                     echo '<p>No weapons found</p>';
                                   else:
-                                    foreach($loadout as $weapon):
+                                    foreach($loadout as $key => $weapon):
                                       $weaponName = $weapon['name'];
                                       $weaponName = str_replace("WEAPON_","", $weaponName);
                                       $weaponName = strtolower($weaponName);
                                     ?>
-                                    <li class="list-item"><?=ucfirst($weaponName)?> - <?=$weapon['ammo']?> </li>
+                                    <li class="list-item delweapon" data-csrf="<?=getCurrentCsrfToken()?>" data-weaponid="<?=$key?>" data-userid="<?=$userId?>">
+                                      <div class="row">
+                                        <div class="col-md-6"><?=ucfirst($weaponName)?></div>
+                                        <div class="col-md-6"><?=$weapon['ammo']?></div>
+                                      </div>
+                                    </li>
                                     <?php endforeach; ?>
                                   <?php endif; ?>
                                 </ul>
@@ -189,7 +205,7 @@
                                         $resultTrunk = $link->query($trunkSql);
                                         if($resultTrunk->num_rows > 0):
                                         ?>
-                                          <button type="button" class="btn btn-secondary mb-1 viewtrunkbtn" data-plate="<?=$plate?>" data-toggle="modal" data-target="#largeModal">View trunk</button>
+                                          <button type="button" class="btn btn-secondary mb-1 viewtrunkbtn" data-plate="<?=$plate?>" data-toggle="modal" data-csrf="<?=getCurrentCsrfToken()?>" data-target="#largeModal">View trunk</button>
                                         <?php endif;?>
                                       </div>
                                     </div>
@@ -211,7 +227,7 @@
                                 </div>
                                 <div class="card-body">
                                   <?php
-                                  $inventorySql = " SELECT * FROM user_inventory WHERE identifier = '{$identifier}'";
+                                  $inventorySql = " SELECT * FROM user_inventory WHERE identifier = '{$identifier}' AND count != '0'";
                                   $resultInventory = $link->query($inventorySql);
                                   ?>
                                   <?php if($resultInventory->num_rows > 0):?>
@@ -219,7 +235,7 @@
                                   <?php if($item->count != '0'): ?>
                                       <div class="row pb-2 pt-2">
                                         <div class="col-lg-7">
-                                          <a href="#" class="remove-item" data-itemid="<?=$item->id?>"><?=$item->item?></a>
+                                          <a href="#" class="remove-item" data-csrf="<?=getCurrentCsrfToken()?>" data-itemid="<?=$item->id?>"><?=$item->item?></a>
                                         </div>
                                         <div class="col-lg-4">
                                           <?=$item->count?>
@@ -229,7 +245,7 @@
                                   <?php endwhile; ?>
 
                                 <?php else: ?>
-                                    <p>User has no properties</p>
+                                    <p>User has no inventory items</p>
                                 <?php endif; ?>
                                 </div>
                             </div>
@@ -288,14 +304,14 @@
                               </div>
                               <div class="card-body">
                                 <?php
-                                $lisenceSQL = " SELECT * FROM user_license WHERE owner = '{$identifier}'";
+                                $lisenceSQL = " SELECT * FROM user_licenses WHERE owner = '{$identifier}'";
                                 $resultLicense = $link->query($lisenceSQL);
                                 ?>
                                 <?php if($resultLicense->num_rows > 0):?>
                                 <?php while($licence = mysqli_fetch_object($resultLicense)): ?>
                                     <div class="row pb-2 pt-2">
                                       <div class="col-lg-12">
-                                        <?=$licence->type?>
+                                        <?=ucfirst($licence->type)?>
                                       </div>
                                     </div>
                                 <?php endwhile; ?>
@@ -357,8 +373,8 @@
                                   <?php while($account = mysqli_fetch_object($resultUserAction)): ?>
                                       <div class="row pb-2 pt-2">
                                         <div class="col-lg-12">
-                                          <a href="#" class="kick admin-action" data-steamid="<?=$account->identifier?>">Kick</a>
-                                          <a href="#" class="banuser admin-action" data-license="<?=$account->license?>" data-steamid="<?=$account->identifier?>">Ban</a>
+                                          <span class="kick admin-action" data-steamid="<?=$account->identifier?>">Kick</span>
+                                          <span class="banuser admin-action" data-license="<?=$account->license?>" data-steamid="<?=$account->identifier?>">Ban</span>
 
                                           <div class="ban-player row mb-3 mt-3">
                                               <form action="/admin/actions/addBan.php" method="SELF">
@@ -366,6 +382,7 @@
                                                 <input type="hidden" name="userid" value="<?=$account->id?>">
                                                 <input type="hidden" name="username" value="<?=$account->name?>">
                                                 <input type="hidden" name="steamid" value="<?=$account->identifier?>">
+                                                <input type="hidden" name="csrf" value="<?=getCurrentCsrfToken()?>">
                                                 <input type="hidden" name="bannedby" value="<?=$_SESSION['username'];?>">
                                                 <input type="hidden" name="actionbyuser" value="yes">
 
@@ -373,6 +390,9 @@
                                                   <div class="form-group">
                                                       <label>Expire</label>
                                                       <select name="expires" class="form-control">
+                                                        <option value="1d">1 day</option>
+                                                        <option value="2d">2 days</option>
+                                                        <option value="3d">3 days</option>
                                                         <option value="1w">1 week</option>
                                                         <option value="2w">2 weeks</option>
                                                         <option value="3w">3 weeks</option>
@@ -393,7 +413,7 @@
                                                 </div>
                                                 <div class="col-md-12">
                                                   <div class="form-group">
-                                                      <input type="submit" name="ban" value="Ban now"> <a href="#" class="cancelban">cancel</a>
+                                                      <input type="submit" name="ban" value="Ban now"> <span class="cancelban">cancel</span>
                                                   </div>
                                                 </div>
                                               </form>
@@ -406,31 +426,138 @@
                           </div>
                       </div>
                     </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                          <div class="card">
+                              <div class="card-header">
+                                  <h4>Admin Warnings</h4>
+                              </div>
+                              <div class="card-body">
+                                <?php
+                                  $resultWarning = $link->query("SELECT * FROM user_warnings WHERE userid = '$userId'");
+                                ?>
+                                <?php if($resultWarning->num_rows > 0):?>
+                                    <div class="row pb-2 pt-2">
+                                      <div class="col-lg-12">
+                                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                                          <tr>
+                                            <td>Date</td>
+                                            <td>Type</td>
+                                            <td>Comment</td>
+                                            <td>By</td>
+                                            <td></td>
+                                          </tr>
+                                          <?php while($warnings = mysqli_fetch_object($resultWarning)): ?>
+                                            <tr>
+                                              <td><?=date('d-m-y h:i',$warnings->time_added);?></td>
+                                              <td><?=$warnings->type?></td>
+                                              <td><?=$warnings->warning?></td>
+                                              <td><?=$warnings->byadmin?></td>
+                                              <td><span href="#" class="delete btn" data-csrf="<?=getCurrentCsrfToken()?>" data-id="<?=$warnings->id?>" data-action="user_warnings"> X </span></td>
+                                            </tr>
+                                          <?php endwhile; ?>
+                                        </table>
+                                      </div>
+                                    </div>
+                                <?php else: ?>
+                                    User has no warnings
+                                <?php endif;?>
+                                <div class="row pt-2">
+                                  <div class="col-md-12">
+                                    <button type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#warning">Create Warning</button>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                          <div class="card">
+                              <div class="card-header">
+                                  <h4>User received bans</h4>
+                              </div>
+                              <div class="card-body">
+                                <?php
+                                  $resultBans = $link->query("SELECT * FROM received_bans WHERE userid = '$userId'");
+                                ?>
+                                <?php if($resultBans->num_rows > 0):?>
+                                    <div class="row pb-2 pt-2">
+                                      <div class="col-lg-12">
+                                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                                          <tr>
+                                            <td>Date</td>
+                                            <td>Expire</td>
+                                            <td>Reason</td>
+                                            <td>By</td>
+                                          </tr>
+                                          <?php while($ban = mysqli_fetch_object($resultBans)): ?>
+                                            <tr>
+                                              <td><?=date('d-m-y h:i',$ban->banned_on);?></td>
+                                              <td><?=date('d-m-y h:i',$ban->ban_expires)?></td>
+                                              <td><?=explode(" (",$ban->reason)[0]?></td>
+                                              <td><?=explode("Banned by:",$ban->reason)[1]?></td>
+                                            </tr>
+                                          <?php endwhile; ?>
+                                        </table>
+                                      </div>
+                                    </div>
+                                <?php else: ?>
+                                    User has no previous bans
+                                <?php endif;?>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-lg-12">
+                          <div class="card">
+                              <div class="card-header">
+                                  <h4>User reports</h4>
+                              </div>
+                              <div class="card-body">
+                                <?php
+                                  $resultReports = $link->query("SELECT * FROM user_reports WHERE userid = '$userId'");
+                                ?>
+                                <?php if($resultReports->num_rows > 0):?>
+                                    <div class="row pb-2 pt-2">
+                                      <div class="col-lg-12">
+                                        <table id="bootstrap-data-table" class="table table-striped table-bordered">
+                                          <tr>
+                                            <td>Reported By</td>
+                                            <td>Type</td>
+                                            <td>Comment</td>
+                                            <td>Date</td>
+                                          </tr>
+                                          <?php while($report = mysqli_fetch_object($resultReports)): ?>
+                                            <tr>
+                                              <td><?=$report->reported_by;?></td>
+                                              <td><?=$report->report_type?></td>
+                                              <td><?=$report->report_comment?></td>
+                                              <td><?=date('d-m-y h:i',$report->report_time)?></td>
+                                            </tr>
+                                          <?php endwhile; ?>
+                                        </table>
+                                      </div>
+                                    </div>
+                                <?php else: ?>
+                                    User has no reports
+                                <?php endif;?>
+                                <div class="row pt-2">
+                                  <div class="col-md-12">
+                                    <button type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#report">Create report</button>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
+                      </div>
+                    </div>
               <?php endif; ?>
             </div><!-- .animated -->
         </div><!-- .content -->
     </div><!-- /#right-panel -->
 
-    <div class="modal fade" id="largeModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-
-                    <h5 class="modal-title" id="largeModalLabel">Loading info</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        Loading....
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<?php include('template-parts/user-views/trunk-inventory.php'); ?>
+<?php include('template-parts/reports/warning.php'); ?>
+<?php include('template-parts/reports/report.php'); ?>
 <?php include('template-parts/footer.php'); ?>

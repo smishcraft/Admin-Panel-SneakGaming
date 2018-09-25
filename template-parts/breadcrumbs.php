@@ -1,5 +1,5 @@
 <div class="breadcrumbs">
-    <div class="col-sm-4">
+    <!-- <div class="col-sm-4">
         <div class="page-header float-left">
             <div class="page-title">
                 <h1>Users</h1>
@@ -16,5 +16,5 @@
                 </ol>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>

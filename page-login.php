@@ -1,11 +1,9 @@
 <?php
 include('template-parts/header.php');
-
 if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
     header("location: index.php");
     exit;
 }
-
 // Define variables and initialize with empty values
 $username = $password = "";
 $username_err = $password_err = "";
@@ -106,10 +104,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             <label>
                                 <input type="checkbox"> Remember Me
                             </label>
-                            <label class="pull-right">
-                                <a href="#">Forgotten Password?</a>
-                            </label>
-
                         </div>
                         <button type="submit" class="btn btn-success btn-flat m-b-30 m-t-30">Sign in</button>
                     </form>

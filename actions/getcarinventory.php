@@ -1,6 +1,8 @@
 <?php
 include('../template-parts/session.php');
 require '../config.php';
+require '../functions.php';
+
 $plate = $_GET['plate'];
   $sql = "SELECT * FROM truck_inventory WHERE plate = '{$plate}' ";
   $result = $link->query($sql);
@@ -10,7 +12,7 @@ $plate = $_GET['plate'];
 <?php else: ?>
 <?php while($inventory = mysqli_fetch_object($result)): ?>
   <div class="row pt-2 pb-2 bbrow">
-      <div class="col-lg-7"><a href="#" class="removeitem" data-id="<?=$inventory->id?>"><?=$inventory->name?></a></div>
+      <div class="col-lg-7"><a href="#" class="removeitem" data-csrf="<?=getCurrentCsrfToken()?>" data-id="<?=$inventory->id?>"><?=$inventory->name?></a></div>
     <div class="col-lg-4"><?=$inventory->count?></div>
   </div>
 <?php endwhile; ?>

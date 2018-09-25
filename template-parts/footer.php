@@ -2,6 +2,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
 <script src="assets/js/plugins.js"></script>
 <script src="assets/js/main.js"></script>
+
+
 <script src="assets/js/lib/chart-js/Chart.bundle.js"></script>
 <script src="assets/js/dashboard.js"></script>
 <script src="assets/js/widgets.js"></script>
@@ -28,12 +30,12 @@
         } );
     } )( jQuery );
 </script>
-<div class="footer">
-  <div class="row">
-    <div class="credits">
-      <a href="https://discord.gg/45Tv9qW">Made by SneakGaming | Exclusive Life</a>
+  <div class="footer">
+    <div class="row">
+      <div class="credits">
+        <a href="https://discord.gg/45Tv9qW">Made by SneakGaming | Exclusive Life</a>
+      </div>
     </div>
   </div>
-</div>
 </body>
 </html>

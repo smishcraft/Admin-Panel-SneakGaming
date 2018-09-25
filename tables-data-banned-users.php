@@ -1,5 +1,6 @@
 <?php include('template-parts/header.php') ;?>
 <?php include('template-parts/left-panel.php'); ?>
+<?php require_once('template-parts/antiCsrf.php'); ?>
 
     <div id="right-panel" class="right-panel">
       <?php include('template-parts/top-bar.php'); ?>
@@ -41,7 +42,7 @@
                                   $name = explode(" )",$name[1]);
                                   $name = $name[0];
                                 }else{
-                                  $name = $user->steamname;
+                                  $name = strip_tags($user->steamname);
                                 }
 
                               ?>
@@ -50,7 +51,7 @@
                                   <td><?=$user->reason?></td>
                                   <td><?=$expire?> </td>
                                   <td>
-                                    <a href="#" class="ban admin-action" data-banid="<?=$user->banid?>">Unban</a>
+                                    <span  class="ban admin-action" data-banid="<?=$user->banid?>">Unban</span>
                                   </td>
                                 </tr>
                               <?php endwhile; ?>
@@ -81,10 +82,10 @@
     <script src="assets/js/lib/data-table/datatables-init.js"></script>
 
     <script type="text/javascript">
-        jQuery(document).ready(function() {
-          jQuery('#bootstrap-data-table-export').DataTable();
-          jQuery(document).on("click", "a.ban",function(event) {
-            event.preventDefault;
+        $(document).ready(function() {
+          $('#bootstrap-data-table-export').DataTable();
+          jQuery(document).on("click", "span.ban",function(e) {
+            e.preventDefault;
             if (confirm('Are you sure to unban?')) {
               var banId = jQuery(this).data('banid');
               jQuery.ajax({    //create an ajax request to display.php
@@ -92,11 +93,12 @@
                 data: {
                   steamid: jQuery(this).data('steamid'),
                   banid: jQuery(this).data('banid'),
+                  csrfToken: '<?=getCurrentCsrfToken()?>',
                 } ,
                 url: "/admin/actions/removeBan.php",
                 dataType: "html",   //expect html to be returned
                 success: function(response){
-                    jQuery('a.ban[data-banid="'+banId+'"]').parent().parent().hide(300);
+                    jQuery('span.ban[data-banid="'+banId+'"]').parent().parent().hide(300);
                 }
               }); // end ajax
             } // end confirm
@@ -105,5 +107,7 @@
       } );
 
     </script>
+
+
 </body>
 </html>

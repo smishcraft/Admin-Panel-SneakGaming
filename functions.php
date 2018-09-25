@@ -2,23 +2,22 @@
 session_start();
 include('config.php');
 
+spl_autoload_register(function ($class_name) {
+    include 'lib/'.$class_name . '.php';
+});
+
 function thousandsCurrencyFormat($num) {
-
   if($num>1000) {
-
-        $x = round($num);
-        $x_number_format = number_format($x);
-        $x_array = explode(',', $x_number_format);
-        $x_parts = array(' k', ' m', ' b', ' t');
-        $x_count_parts = count($x_array) - 1;
-        $x_display = $x;
-        $x_display = $x_array[0] . ((int) $x_array[1][0] !== 0 ? '.' . $x_array[1][0] : '');
-        $x_display .= $x_parts[$x_count_parts - 1];
-
-        return $x_display;
-
+    $x = round($num);
+    $x_number_format = number_format($x);
+    $x_array = explode(',', $x_number_format);
+    $x_parts = array(' k', ' m', ' b', ' t');
+    $x_count_parts = count($x_array) - 1;
+    $x_display = $x;
+    $x_display = $x_array[0] . ((int) $x_array[1][0] !== 0 ? '.' . $x_array[1][0] : '');
+    $x_display .= $x_parts[$x_count_parts - 1];
+    return $x_display;
   }
-
   return $num;
 }
 
@@ -48,6 +47,18 @@ function checkIfBanned($steamid){
   }
 }
 
+function checkIfOnline($steamid){
+  global $link;
+  $sql = "SELECT online FROM users WHERE identifier = '{$steamid}' AND online = '1' ";
+  $result = $link->query($sql);
+  $countRows = $result->num_rows;
+  if($countRows > 0){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 function inlineEdit($action,$userid,$currentValue){
   ob_start();
   ?>
@@ -62,4 +73,40 @@ function inlineEdit($action,$userid,$currentValue){
   <?php
   $data = ob_get_contents();
   ob_end_flush();
+}
+
+function isValidCsrfToken($token) {
+	if($token == $_SESSION['lastCsrfToken']) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function getCurrentCsrfToken() {
+	return $_SESSION['CsrfToken'];
+}
+
+function isSuperAdmin($id){
+  global $link;
+  $sql = "SELECT * FROM admins WHERE id = '{$id}' AND `rank` = '1' ";
+  $result = $link->query($sql);
+  $countRows = $result->num_rows;
+  if($countRows > 0 ){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+function isUserOnline($steamid) {
+  global $link;
+  $sql = "SELECT online FROM users WHERE identifier = '{$steamid}' AND online = '1'";
+  $result = $link->query($sql);
+  $countRows = $result->num_rows;
+  if($countRows > 0){
+    return true;
+  }else{
+    return false;
+  }
 }

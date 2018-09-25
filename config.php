@@ -6,6 +6,12 @@ define('DB_NAME', '');
 
 // Cronjob key
 define('KEY', '2136DAasUIt');
+define('MAXIMUM_MONEY_NEWPLAYER', '1000000');
+define('MAXIMUM_MONEY_24H', '3000000');
+define('MAXIMUM_MONEY_3D', '4000000');
+define('MAXIMUM_MONEY_1W', '8000000');
+define('MAXIMUM_MONEY_1m', '15000000');
+define('MAXIMUM_MONEY_3m', '25000000');
 
 // Show data in view user
 define('SHOW_PROPERTIES', true);

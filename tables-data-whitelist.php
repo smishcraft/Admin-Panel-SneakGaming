@@ -50,7 +50,7 @@
                                           $sqlUser = "SELECT name,id,online,identifier FROM users WHERE identifier = '{$job->identifier}' ";
                                           $resultUser = $link->query($sqlUser);
                                           while($user = mysqli_fetch_object($resultUser)){
-                                            $username = $user->name;
+                                            $username = strip_tags($user->name);
                                             $userId = $user->id;
                                             $online = $user->online;
                                             $identifier = $user->identifier;
@@ -105,8 +105,26 @@
     <script src="assets/js/lib/data-table/datatables-init.js"></script>
 
     <script type="text/javascript">
-        jQuery(document).ready(function() {
-          jQuery('#bootstrap-data-table-export').DataTable();
+        $(document).ready(function() {
+          $('#bootstrap-data-table-export').DataTable();
+
+          jQuery(document).on("click", "a.kick",function(event) {
+            if (confirm('Are you sure to kick?')) {
+              var steamidSaved = jQuery(this).data('steamid')
+              // jQuery.ajax({    //create an ajax request to display.php
+              //   type: "GET",
+              //   data: {
+              //     steamid: jQuery(this).data('steamid'),
+              //     reason: 'Kick by: <?=$_SESSION["username"]?>'
+              //   } ,
+              //   url: "addKick.php",
+              //   dataType: "html",   //expect html to be returned
+              //   success: function(response){
+              //       $('a.kick[data-steamid="'+steamidSaved+'"]').hide(300);
+              //   }
+              // }); // end ajax
+            } // end confirm
+          });
 
           jQuery(document).on("click", "a.ban",function(event) {
             if (confirm('Are you sure to fire?')) {
@@ -126,7 +144,15 @@
             } // end confirm
           });
 
+
+
         } );
+
+
+
+
     </script>
+
+
 </body>
 </html>

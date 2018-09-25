@@ -390,7 +390,9 @@ body.open {
                         display: block;
                         left: inherit;
                         right: -180px;
-                        top: 0;
+                        top: 14px;
+                        padding:10px;
+                        z-index:99;
                         li {
                             a {
                                 display: block;
@@ -1626,7 +1628,7 @@ header .form-inline {
 
 
 
-// Responsive Styles 
+// Responsive Styles
 
 @media (max-width: 1368px) {
     .content {
@@ -1690,7 +1692,7 @@ header .form-inline {
         flex: none;
     }
 }
-@media (max-width: 575.99px) { 
+@media (max-width: 575.99px) {
     body {
         display: block;
     }

@@ -20,7 +20,7 @@
                                 <th>Steam name</th>
                                 <th>Money</th>
                                 <th>Bank</th>
-                                <th>Job</th>
+                                <th class="hidden-xs">Job</th>
                                 <th>Actions</th>
                               </tr>
                             </thead>
@@ -40,13 +40,13 @@
                                   <td>
                                     <span class="status is-<?=($user->online == 1 ? 'online' : 'offline')?>"></span>
                                     <a href="/admin/view-user.php?userid=<?=$user->id?>">
-                                      <?=$user->name?>
+                                      <?=strip_tags($user->name)?>
                                       <?php if(checkIfBanned($user->identifier)): ?>[Banned]<?php endif;?>
                                     </a>
                                   </td>
                                   <td><?=$user->money?></td>
                                   <td><?=$user->bank?></td>
-                                  <td><?=$user->job?> <small>(<?=$user->job_grade?>)</small></td>
+                                  <td class="hidden-xs"><?=$user->job?> <small>(<?=$user->job_grade?>)</small></td>
                                   <td>
                                     <a href="#" class="kick admin-action" data-steamid="<?=$user->identifier?>">Kick</a>
                                     <?php if(!checkIfBanned($user->identifier)): ?>
@@ -63,8 +63,6 @@
                 </div>
             </div><!-- .animated -->
         </div><!-- .content -->
-
-
     </div>
 
     <script src="assets/js/vendor/jquery-2.1.4.min.js"></script>
@@ -84,8 +82,8 @@
     <script src="assets/js/lib/data-table/datatables-init.js"></script>
 
     <script type="text/javascript">
-        jQuery(document).ready(function() {
-          jQuery('#bootstrap-data-table-export').DataTable();
+        $(document).ready(function() {
+          $('#bootstrap-data-table-export').DataTable();
 
           jQuery(document).on("click", "a.kick",function(event) {
             var reasonInput = prompt("Reason", "");
